@@ -29,8 +29,8 @@ print(df)
 df = df.transpose()
 ```
 这两个函数灵活性都不高，只能全列全行转置。
-## unstack 方法
-Dataframe中如果有多重索引，该方法可用于收缩索引数据，使其变成新的一列，例如
+## unstack/stack 方法
+Dataframe中如果有多重索引，unstack方法可用于收缩索引数据，使其变成新的一列，例如
 ```python
 print(s)
 # >>
@@ -49,6 +49,7 @@ print(s)
 参数level默认为-1，即默认收缩最后一个索引层级，fill_value指填充空值，默认为None
 所以，实现指定行的转置为列，思路可以是先将需要转置的值转化为索引，再通过unstack方法，使其变成新的一列，以下是一个例子；
 在最开始，df的索引是默认的，重新将id设置为df的索引后，只剩下A和B两列，unstack 将指定层级（至少两级索引，否则索引名为空值，交换后的新列名也是空）的索引名与所有列名交换，使指定索引名变为新列名
+stack 方法的作用与unstack相反，所以连续使用两次unstack的结果与使用一次stack的结果是一致的
 ```python
 df = pd.DataFrame({"A": ['x','y','z','o'],"B": [5,6,7,8],"id":['001','003','004','002']})
 print(df.index)
@@ -89,6 +90,36 @@ print(df)
 # 6     B  004      7
 # 7     B  002      8
 ```
-## pivot方法
+## pivot / pivot_table方法
+在dataframe的内置方法中 pivot/pivot_table 可以对整个表的结构进行改变，pivot_table则可以使用聚合方法对数据进行统计和计算，入参数据如下：
+def pivot(self, index=None, columns=None, values=None) ；
+def pivot_table(self, values=None, index=None, columns=None, aggfunc="mean", fill_value=None, margins=False, dropna=True, margins_name="All", observed=False)，
+使用pviot方法进行转置的思路可以是：将需要转置的值设置为转成列名columns,其他不变的列设置为values
+以下例子通过pivot，还原了df最开始的结构
+```python
+print(df)
+# >>
+#    class  id values
+# 0     A  001      x
+# 1     A  003      y
+# 2     A  004      z
+# 3     A  002      o
+# 4     B  001      5
+# 5     B  003      6
+# 6     B  004      7
+# 7     B  002      8
+df = df.pivot(values=["values"],columns="class",index=["id"])
+df.reset_index(inplace=True)
+df.columns = ["id","A","B"]
+print(df)
+# >>
+#     id  A  B
+# 0  001  x  5
+# 1  002  o  8
+# 2  003  y  6
+# 3  004  z  7
+
+```
+
 
 

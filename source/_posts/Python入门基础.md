@@ -1,5 +1,5 @@
 ---
-title: Python入门基础
+title: Python基础知识总结
 date: 2022-07-07 20:54:00
 categories:
 - [python]
@@ -13,7 +13,8 @@ cover: http://tva1.sinaimg.cn/large/006UraCCly1h3zwb6kpvvj31z40pd7qz.jpg
 
 Python 是一种解释型、面向对象、动态数据类型的高级程序设计语言，由 Guido van Rossum 于 1989 年底发明，第一个公开发行版发行于 1991 年。像 Perl 语言一样, Python 源代码同样遵循 GPL(GNU General Public License) 协议。
 
-相比于其他的编程语言，入门较为简单，对于那些想要学习编程的非计算机专业的同学非常友好。
+相比于其他的编程语言，入门较为简单，对于那些想要学习编程的非计算机专业的同学非常友好。  
+本篇主要总结日常使用python 时遇到的问题和一些扩展，
 
 ## 环境搭建与基础语法
 

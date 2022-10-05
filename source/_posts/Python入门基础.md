@@ -2,7 +2,7 @@
 title: Python基础
 date: 2022-07-07 20:54:00
 categories:
-- [python]
+- [PYTHON]
 top_img: http://tva1.sinaimg.cn/large/006UraCCly1h3zwb6kpvvj31z40pd7qz.jpg
 cover: http://tva1.sinaimg.cn/large/006UraCCly1h3zwb6kpvvj31z40pd7qz.jpg
 ---
@@ -46,6 +46,7 @@ ls2 = [x + 1 for x in ls]
 ```
 还可以使用 enumerate()函数遍历列表，这样可同时遍历list的下标索引和元素，例如：
 ```python
+
 for ind,enu in enumerate(ls):
     print(ind,enu)
 ```
@@ -66,12 +67,13 @@ for ind,enu in enumerate(ls):
         但以上两种方式返回的是一个视图对象，想要继续使用，需要转成列表或元组类型，例如：list(dict.keys()) or tuple(dict.values()) 
 3. 普通字典转为有序字典（按插入顺序输出） collections.OrderedDict()
 ```python
+
 import collections
 dict2 = collections.OrderedDict()
 dict2['a'] = 'A'
 dict2['b'] = 'B'
 dict2['c'] = 'C'
-# >>OrderedDict([('a', 'A'), ('b', 'B'), ('c', 'C')])
+>>OrderedDict([('a', 'A'), ('b', 'B'), ('c', 'C')])
 ```
 ### 集合 set
 1. 参考链接：https://www.runoob.com/python3/python3-set.html
@@ -109,6 +111,7 @@ for x in [1,2,3,4,5]:
 1. 基本用法： http://c.biancheng.net/view/2283.html
 2. 装饰器：以下为定义装饰器函数及使用装饰器的方法，在调用funB过程中，会执行操作一和操作二
 ```python
+
 def funA(fn):
     # ...操作一
     fn()

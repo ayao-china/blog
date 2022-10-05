@@ -1,9 +1,8 @@
 ---
 title: DataFrame转置
-sticky: true
 date: 2022-07-12 21:21:51
 tags:
-categories: [python,pandas]
+categories: [PYTHON,pandas]
 top_img: http://tva1.sinaimg.cn/large/006UraCCly1h3zw9tub3mj32yo1o0nph.jpg
 cover: http://tva1.sinaimg.cn/large/006UraCCly1h3zw9tub3mj32yo1o0nph.jpg
 ---

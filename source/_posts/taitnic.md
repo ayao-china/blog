@@ -20,7 +20,7 @@ from sklearn.preprocessing import LabelEncoder,OrdinalEncoder,OneHotEncoder
 from sklearn.preprocessing import StandardScaler,MinMaxScaler
 Train = pd.read_csv('./modelfile/train.csv',encoding='utf-8')
 Test = pd.read_csv('./modelfile/test.csv',encoding='utf-8')
-res = pd.read_csv('./modelfile/gender_submission.csv',encoding='utf-8')
+
 # 数据合并
 tmp = Train.drop(columns='Survived')
 total_data = pd.concat([tmp,Test])
@@ -34,7 +34,7 @@ class与age负相关且系数最大，则选取地位等级class作为其中一�
 ```python
 
 total_data['title'] = total_data['Name'].apply(lambda n:str(n).split(",")[1].split(".")[0].replace(' ','').replace('Ms','Miss'))
-age_mean = Train.groupby(['Pclass','title']).median()['Age'].reset_index()
+age_mean = total_data.groupby(['Pclass','title']).median()['Age'].reset_index()
 total_data['Age'].fillna(0, inplace=True)
 total_data = pd.merge(total_data, age_mean, 'left', on=['Pclass','title'])
 total_data['Age'] = total_data.apply(lambda x: x['Age_x'] if x['Age_x'] > 0 else x['Age_y'], axis=1)
@@ -42,11 +42,11 @@ total_data['Age'] = total_data.apply(lambda x: x['Age_x'] if x['Age_x'] > 0 else
 + 票价fare从主观判断来看与地位等级class和港口Embarked相关，地位等级越高票价消费越高；港口代表了里程距离，里程越大票价肯定会越高，以港口和地位分组取中位数补充票价缺失值，并将票价转为标准值
 ```python
 
-fare = Train.groupby(['Pclass','Embarked']).median()['Fare'].reset_index()
+fare = total_data.groupby(['Pclass','Embarked']).median()['Fare'].reset_index()
 total_data['Fare'].fillna(0.1,inplace=True)
 total_data = pd.merge(total_data, fare, 'left', on=['Pclass', 'Embarked'])
 total_data['Fare'] = total_data.apply(lambda x: x['Fare_x'] if x['Fare_x'] > 0.1 and x['Fare_x'] == 0 else x['Fare_y'], axis=1)
-total_data['Fare'] = St.fit_transform(np.array(Train['Fare'].values.tolist()).reshape(-1,1))
+total_data['Fare'] = St.fit_transform(np.array(total_data['Fare'].values.tolist()).reshape(-1,1))
 
 ```
 + 船舱号cabin字段缺失较多，可以考虑去除不分析。
@@ -66,7 +66,7 @@ total_data['title'] = LE.fit_transform(total_data['title'].values.tolist())
 # 同行者数量分布
 total_data['family'] = total_data['SibSp'] + total_data['Parch']
 total_data['family'] = total_data['family'].apply(lambda x:'a' if x in (1,2) else 'b' if x ==3 else 'c')
-total_data['family'] = LE.fit_transform(Train['family'].values.tolist())
+total_data['family'] = LE.fit_transform(total_data['family'].values.tolist())
 ```
 + 座位号Ticket一部分有字母，一部分只有数字，猜测座位分布影响了幸存概率，可以将其进一步处理，提取座位号中的首字母，根据首字母将数据标准化
 ```python
@@ -76,14 +76,18 @@ total_data['seat'] = total_data['Ticket'].str.extract('([A-Za-z]+)',expand=True)
 total_data['seat'].fillna('n', inplace=True)
 total_data['cab'] = total_data['Ticket'].apply(lambda c: str(c).split("/")[0] if "/" in str(c) else 'n')
 total_data['cab'] = total_data.apply(lambda t: t['cab'] if t['cab'] != 'n' else 's' if t['seat'] != 'n' else 'num',axis=1)
-total_data['cab'] = LE.fit_transform(Train['cab'].values.tolist())
+total_data['cab'] = LE.fit_transform(total_data['cab'].values.tolist())
 ```
 票价fare已经在前期处理成了标准值，可以直接放入模型。
 Embarked 港口号提供的信息有限，既不是数值，也没有直接信息表明它与求生者是否幸存有关，可以去除不分析。
 ## 模型预测
-+ 使用k近邻和随机森林作为预测模型，交叉验证评估模型性能，并寻找最优参数。从评估结果来看，K近参数为8时评分最高0.796，随机森林评分最高0.838，因此使用随机森林做预测结果会更准确
++ 使用k近邻和随机森林作为预测模型，交叉验证评估模型性能，并寻找最优参数。从评估结果来看，K近邻参数为8时评分最高0.796，随机森林评分最高0.838，因此使用随机森林做预测结果会更准确
 
 ```python
+
+# 交叉验证评估模型性能
+from sklearn.model_selection import cross_val_score
+from sklearn import svm
 
 Train.set_index('PassengerId',inplace=True)
 x_train = np.array(total_data[:891])
@@ -91,6 +95,7 @@ y_train= np.array(Train['Survived'])
 x_test = np.array(total_data[891:])
 
 # K近邻
+from sklearn.neighbors import KNeighborsClassifier
 sn = 0
 tn = 0
 for ne in range(4,10):
@@ -104,13 +109,9 @@ for ne in range(4,10):
     else:
         continue
 print(tn,sn)
+
 # 随机森林
 from sklearn.ensemble import RandomForestClassifier
-# 交叉验证评估模型性能
-from sklearn.model_selection import cross_val_score
-from sklearn import svm
-
-# 查找最优参数
 t = (5,54)
 sm = 0
 for dep in range(4,8):
@@ -129,6 +130,8 @@ RF.fit(x_train, y_train)
 Test['Survived'] = RF.predict(x_test)
 Test.reset_index(inplace=True)
 Test = Test[['PassengerId','Survived']]
+
+res = pd.read_csv('./modelfile/gender_submission.csv',encoding='utf-8')
 res = pd.merge(res[['PassengerId']],Test,'left',on=['PassengerId'])
 
 ```
